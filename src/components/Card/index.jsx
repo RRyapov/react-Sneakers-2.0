@@ -1,11 +1,27 @@
 import styles from "./Card.module.scss";
 import { useState, useEffect } from "react";
 
-function Card({ onFavorite, onPlus, title, imageUrl, price }) {
-  const [isAdded, setIsAdded] = useState(false);
+function Card({
+  onFavorite,
+  isSelected,
+  onPlus,
+  onDelete,
+  title,
+  imageUrl,
+  price,
+}) {
+  const [isAdded, setIsAdded] = useState(isSelected);
+
+  useEffect(() => {
+    setIsAdded(isSelected);
+  }, [isSelected]);
 
   const onClickPlus = () => {
     onPlus({ title, imageUrl, price });
+    setIsAdded(!isAdded);
+  };
+  const onClickDelete = () => {
+    onDelete({ title, imageUrl, price });
     setIsAdded(!isAdded);
   };
 
@@ -32,12 +48,21 @@ function Card({ onFavorite, onPlus, title, imageUrl, price }) {
           <span>Цена:</span>
           <b>{price} руб.</b>
         </div>
-        <img
-          className={styles.plus}
-          onClick={onClickPlus}
-          src={isAdded ? "/img/btn-checked.svg" : "/img/btn-plus.svg"}
-          alt="Plus"
-        />
+        {isAdded ? (
+          <img
+            className={styles.plus}
+            onClick={onClickDelete}
+            src="/img/btn-checked.svg"
+            alt="Plus"
+          />
+        ) : (
+          <img
+            className={styles.plus}
+            onClick={onClickPlus}
+            src="/img/btn-plus.svg"
+            alt="Plus"
+          />
+        )}
       </div>
     </div>
   );

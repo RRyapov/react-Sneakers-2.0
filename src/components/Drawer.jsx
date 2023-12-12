@@ -1,4 +1,4 @@
-function Drawer({ onClose, items = [] }) {
+function Drawer({ onClose, onDelete, totalPrice, items = [] }) {
   return (
     <div className="overlay">
       <div className="drawer">
@@ -23,6 +23,13 @@ function Drawer({ onClose, items = [] }) {
                 <b>{obj.price}</b>
               </div>
               <img
+                onClick={() =>
+                  onDelete({
+                    title: obj.title,
+                    imageUrl: obj.imageUrl,
+                    price: obj.price,
+                  })
+                }
                 className="removeBtn"
                 src="/img/btn-remove.svg"
                 alt="Remove button"
@@ -36,12 +43,12 @@ function Drawer({ onClose, items = [] }) {
             <li className="d-flex">
               <span>Итого:</span>
               <div></div>
-              <b>21 498 руб.</b>
+              <b>{totalPrice()} руб.</b>
             </li>
             <li className="d-flex">
               <span>Налог 5%:</span>
               <div></div>
-              <b>1074 руб.</b>
+              <b>{totalPrice() * 0.05} руб.</b>
             </li>
           </ul>
           <button className="greenButton">
