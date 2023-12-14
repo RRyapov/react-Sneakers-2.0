@@ -1,4 +1,4 @@
-function Drawer({ onClose, onDelete, totalPrice, items = [] }) {
+function Drawer({ onClose, onDelete, onRemove, totalPrice, items = [] }) {
   return (
     <div className="overlay">
       <div className="drawer">
@@ -11,6 +11,24 @@ function Drawer({ onClose, onDelete, totalPrice, items = [] }) {
             alt="Remove button"
           />
         </h2>
+
+        <div className="cartEmpty d-flex align-center justify-center flex-column flex">
+          <img
+            className="mb-20"
+            width={"120px"}
+            height={"120px"}
+            src="/img/empty-cart.img"
+            alt="Empty cart"
+          />
+          <h2>Корзина пустая</h2>
+          <p className="opacity-6">
+            Добавьте хотя бы одну пару кроссовок, чтобы сделать заказ.
+          </p>
+          <button className="greenButton">
+            <img src="/img/arrow.svg" alt="Arrow" /> Вернуться назад
+          </button>
+        </div>
+
         <div className="items">
           {items.map((obj) => (
             <div className="cartItem d-flex align-center mb-20">
@@ -23,13 +41,14 @@ function Drawer({ onClose, onDelete, totalPrice, items = [] }) {
                 <b>{obj.price}</b>
               </div>
               <img
-                onClick={() =>
+                onClick={() => {
                   onDelete({
                     title: obj.title,
                     imageUrl: obj.imageUrl,
                     price: obj.price,
-                  })
-                }
+                  });
+                  onRemove(obj.id);
+                }}
                 className="removeBtn"
                 src="/img/btn-remove.svg"
                 alt="Remove button"
@@ -48,7 +67,7 @@ function Drawer({ onClose, onDelete, totalPrice, items = [] }) {
             <li className="d-flex">
               <span>Налог 5%:</span>
               <div></div>
-              <b>{totalPrice() * 0.05} руб.</b>
+              <b>{(totalPrice() * 0.05).toFixed(2)} руб.</b>
             </li>
           </ul>
           <button className="greenButton">
