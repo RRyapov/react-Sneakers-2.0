@@ -1,4 +1,4 @@
-import Card from "./components/Card";
+import Card from "./components/Card/Card";
 import Header from "./components/Header";
 import Drawer from "./components/Drawer";
 import { useState, useEffect } from "react";
@@ -7,6 +7,7 @@ import axios from "axios";
 function App() {
   const [items, setItems] = useState([]);
   const [cartItems, setCartItems] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [cartOpened, setCartOpened] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
@@ -20,9 +21,12 @@ function App() {
       .then((res) => setCartItems(res.data));
   }, []);
 
+  // Методы компонентов
+
   const onAddToCart = (obj) => {
     axios.post("https://656da16ebcc5618d3c23978f.mockapi.io/cart", obj);
     setCartItems((prev) => [...prev, obj]);
+    console.log(cartItems);
   };
 
   const onDeletedCart = (obj) => {
@@ -31,7 +35,6 @@ function App() {
 
   const onRemoveItem = (id) => {
     axios.delete(`https://656da16ebcc5618d3c23978f.mockapi.io/cart/${id}`);
-    // setCartItems((prev) => [...prev, obj]);
   };
 
   const searchCardItem = (imageUrl) => {
@@ -45,6 +48,17 @@ function App() {
   const onChangeSearchInput = (event) => {
     setSearchValue(event.target.value);
   };
+
+  const onAddToFavorite = (obj) => {
+    axios.post("https://657da8b73e3f5b189462e862.mockapi.io/favourite", obj);
+    setFavorites((prev) => [...prev, obj]);
+  };
+
+  const onRemoveFavorite = (id) => {
+    axios.delete(`https://657da8b73e3f5b189462e862.mockapi.io/favourite/${id}`);
+  };
+
+  //завершение блока методов
 
   return (
     <div className="wrapper clear">
@@ -97,7 +111,8 @@ function App() {
                 onPlus={(obj) => onAddToCart(obj)}
                 onDelete={(obj) => onDeletedCart(obj)}
                 isSelected={searchCardItem(item.imageUrl)}
-                onFavorite={() => console.log("Добавили в закладки")}
+                onFavorite={(obj) => onAddToFavorite(obj)}
+                removeFavorite={onRemoveFavorite}
               />
             ))}
         </div>

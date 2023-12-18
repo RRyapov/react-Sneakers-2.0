@@ -23,6 +23,14 @@ function Header({ totalPrice, onClickCart }) {
           />
           <span>{totalPrice()} руб.</span>
         </li>
+        <li className="mr-20 cu-p">
+          <img
+            width={18}
+            height={18}
+            src="/img/heart.svg"
+            alt="favorite_logo"
+          />
+        </li>
         <li>
           <img
             width={18}

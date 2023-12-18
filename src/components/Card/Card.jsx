@@ -2,15 +2,17 @@ import styles from "./Card.module.scss";
 import { useState, useEffect } from "react";
 
 function Card({
-  onFavorite,
   isSelected,
   onPlus,
+  onFavorite,
+  removeFavorite,
   onDelete,
   title,
   imageUrl,
   price,
 }) {
   const [isAdded, setIsAdded] = useState(isSelected);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     setIsAdded(isSelected);
@@ -20,10 +22,20 @@ function Card({
     onPlus({ title, imageUrl, price });
     setIsAdded(!isAdded);
   };
+
   const onClickDelete = () => {
     onDelete({ title, imageUrl, price });
     setIsAdded(!isAdded);
   };
+
+  const onClickFavorite = () => {
+    onFavorite({ title, imageUrl, price });
+    setIsFavorite(!isFavorite);
+  };
+
+  // useEffect(() => {
+  //   removeFavorite();
+  // }, [isFavorite]);
 
   useEffect(() => {
     console.log("Переменная изменилась");
@@ -36,9 +48,11 @@ function Card({
           className="button"
           width={32}
           height={32}
-          src="/img/heart-unliked.svg"
+          src={isFavorite ? "/img/heart-liked.svg" : "/img/heart-unliked.svg"}
           alt="Unliked state"
-          onClick={onFavorite}
+          onClick={() => {
+            onClickFavorite();
+          }}
         />
       </div>
       <img width={133} height={112} src={imageUrl} alt="Sneakers" />
