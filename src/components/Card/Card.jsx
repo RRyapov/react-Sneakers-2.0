@@ -11,9 +11,10 @@ function Card({
   title,
   imageUrl,
   price,
+  favorited = false,
 }) {
   const [isAdded, setIsAdded] = useState(isSelected);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(favorited);
 
   useEffect(() => {
     setIsAdded(isSelected);

@@ -147,7 +147,16 @@ function App() {
             />
           }
         />
-        <Route path="/favorites" element={<Favorites items={favorites} />} />
+        <Route
+          path="/favorites"
+          element={
+            <Favorites
+              items={favorites}
+              onRemoveFavorite={onRemoveFavorite}
+              onAddToFavorite={onAddToFavorite}
+            />
+          }
+        />
       </Routes>
     </div>
   );

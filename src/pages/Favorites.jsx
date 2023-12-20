@@ -1,6 +1,6 @@
 import Card from "../components/Card/Card";
 
-function Favorites() {
+function Favorites({ items, onRemoveFavorite, onAddToFavorite }) {
   return (
     <div className="content p-40">
       <div className="d-flex align-center mb-40 justify-between">
@@ -8,7 +8,18 @@ function Favorites() {
       </div>
 
       <div className="d-flex flex-wrap justify-between">
-        Тут будут мои закладки
+        {items.map((item, index) => (
+          <Card
+            key={`${index} ${item}`}
+            id={item.id}
+            title={item.title}
+            price={item.price}
+            imageUrl={item.imageUrl}
+            removeFavorite={() => onRemoveFavorite(item.favId)}
+            onFavorite={onAddToFavorite}
+            favorited={true}
+          />
+        ))}
       </div>
     </div>
   );
