@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function Header({ totalPrice, onClickCart }) {
   return (
     <header className="d-flex justify-between align-center p-40">
@@ -8,10 +10,12 @@ function Header({ totalPrice, onClickCart }) {
           src="/img/logo_1.png"
           alt="sneakers_logotype"
         />
-        <div className="headerInfo">
-          <h3 className="text-uppercase">React Sneakers</h3>
-          <p className="opacity-5">Магазин лучших кроссовок</p>
-        </div>
+        <Link to="/">
+          <div className="headerInfo cu-p">
+            <h3 className="text-uppercase">React Sneakers</h3>
+            <p className="opacity-5">Магазин лучших кроссовок</p>
+          </div>
+        </Link>
       </div>
       <ul className="d-flex">
         <li onClick={onClickCart} className="mr-30 cu-p">
@@ -24,20 +28,24 @@ function Header({ totalPrice, onClickCart }) {
           <span>{totalPrice()} руб.</span>
         </li>
         <li className="mr-20 cu-p">
-          <img
-            width={18}
-            height={18}
-            src="/img/heart.svg"
-            alt="favorite_logo"
-          />
+          <Link to="/favorites">
+            <img
+              width={18}
+              height={18}
+              src="/img/heart.svg"
+              alt="favorite_logo"
+            />
+          </Link>
         </li>
         <li>
+          {/* <Link to="/mainPage"> */}
           <img
             width={18}
             height={18}
             src="/img/profile.svg"
             alt="profile_logo"
           />
+          {/* </Link> */}
         </li>
       </ul>
     </header>

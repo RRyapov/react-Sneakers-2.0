@@ -1,8 +1,10 @@
-import Card from "./components/Card/Card";
 import Header from "./components/Header";
 import Drawer from "./components/Drawer";
+import Home from "./pages/Home";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { Routes, Route, Link } from "react-router-dom";
+import Favorites from "./pages/Favorites";
 
 function App() {
   const [items, setItems] = useState([]);
@@ -14,27 +16,92 @@ function App() {
   useEffect(() => {
     axios
       .get("https://656da16ebcc5618d3c23978f.mockapi.io/items")
-      .then((res) => setItems(res.data));
+      .then((res) => {
+        setItems(res.data);
+
+        axios
+          .get("https://656da16ebcc5618d3c23978f.mockapi.io/cart")
+          .then((resCart) => {
+            setItems(
+              res.data.map((i) =>
+                resCart.data.some((c) => c.id === i.id)
+                  ? {
+                      ...i,
+                      cartId: resCart.data.find((c) => c.id === i.id).cartId,
+                    }
+                  : i
+              )
+            );
+
+            setCartItems(resCart.data);
+          });
+      });
 
     axios
       .get("https://656da16ebcc5618d3c23978f.mockapi.io/cart")
       .then((res) => setCartItems(res.data));
+
+    axios.get("https://657da8b73e3f5b189462e862.mockapi.io/favourite");
   }, []);
 
-  // Методы компонентов
+  // ===================================================Методы компонентов===================================================
 
   const onAddToCart = (obj) => {
-    axios.post("https://656da16ebcc5618d3c23978f.mockapi.io/cart", obj);
-    setCartItems((prev) => [...prev, obj]);
-    console.log(cartItems);
+    axios
+      .post("https://656da16ebcc5618d3c23978f.mockapi.io/cart", obj)
+      .then((res) => {
+        setCartItems((prev) => [...prev, res.data]);
+
+        setItems((prev) =>
+          prev.map((i) =>
+            i.id === res.data.id
+              ? {
+                  ...i,
+                  cartId: res.data.cartId,
+                }
+              : i
+          )
+        );
+      });
   };
 
-  const onDeletedCart = (obj) => {
-    setCartItems((prev) => prev.filter((o) => o.imageUrl !== obj.imageUrl));
+  const onAddToFavorite = (obj) => {
+    axios
+      .post("https://657da8b73e3f5b189462e862.mockapi.io/favourite", obj)
+      .then((res) => {
+        setFavorites((prev) => [...prev, res.data]);
+
+        setItems((prev) =>
+          prev.map((i) =>
+            i.id === res.data.id
+              ? {
+                  ...i,
+                  favId: res.data.favId,
+                }
+              : i
+          )
+        );
+      });
   };
 
-  const onRemoveItem = (id) => {
-    axios.delete(`https://656da16ebcc5618d3c23978f.mockapi.io/cart/${id}`);
+  const onRemoveCardItem = (id) => {
+    axios
+      .delete(`https://656da16ebcc5618d3c23978f.mockapi.io/cart/${id}`)
+      .then(() => {
+        axios
+          .get("https://656da16ebcc5618d3c23978f.mockapi.io/cart")
+          .then((res) => setCartItems(res.data));
+      });
+  };
+
+  const onRemoveFavorite = (id) => {
+    axios
+      .delete(`https://657da8b73e3f5b189462e862.mockapi.io/favourite/${id}`)
+      .then(() => {
+        axios
+          .get("https://657da8b73e3f5b189462e862.mockapi.io/favourite")
+          .then((res) => setFavorites(res.data));
+      });
   };
 
   const searchCardItem = (imageUrl) => {
@@ -49,16 +116,7 @@ function App() {
     setSearchValue(event.target.value);
   };
 
-  const onAddToFavorite = (obj) => {
-    axios.post("https://657da8b73e3f5b189462e862.mockapi.io/favourite", obj);
-    setFavorites((prev) => [...prev, obj]);
-  };
-
-  const onRemoveFavorite = (id) => {
-    axios.delete(`https://657da8b73e3f5b189462e862.mockapi.io/favourite/${id}`);
-  };
-
-  //завершение блока методов
+  //===================================================завершение блока методов===================================================
 
   return (
     <div className="wrapper clear">
@@ -66,57 +124,31 @@ function App() {
       {cartOpened && (
         <Drawer
           items={cartItems}
-          onDelete={onDeletedCart}
           totalPrice={totalPrice}
           onClose={() => setCartOpened(false)}
-          onRemove={onRemoveItem}
+          onRemove={onRemoveCardItem}
         />
       )}
-      <div className="content p-40">
-        <div className="d-flex align-center mb-40 justify-between">
-          <h1>
-            {searchValue
-              ? `Поиск по запросу: "${searchValue}"`
-              : "Все кроссовки"}
-          </h1>
-          <div className="search-block">
-            <img src="/img/search.svg" alt="Search" />
-            <input
-              onChange={onChangeSearchInput}
-              value={searchValue}
-              placeholder="Поиск..."
-            />
-            {searchValue && (
-              <img
-                onClick={() => setSearchValue("")}
-                className="clearBtn"
-                src="/img/btn-remove.svg"
-                alt="Clear button"
-              />
-            )}
-          </div>
-        </div>
 
-        <div className="d-flex flex-wrap justify-between">
-          {items
-            .filter((item) =>
-              item.title.toLowerCase().includes(searchValue.toLowerCase())
-            )
-            .map((item, index) => (
-              <Card
-                key={index}
-                title={item.title}
-                price={item.price}
-                imageUrl={item.imageUrl}
-                onPlus={(obj) => onAddToCart(obj)}
-                onDelete={(obj) => onDeletedCart(obj)}
-                isSelected={searchCardItem(item.imageUrl)}
-                onFavorite={(obj) => onAddToFavorite(obj)}
-                removeFavorite={onRemoveFavorite}
-              />
-            ))}
-        </div>
-      </div>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Home
+              items={items}
+              onChangeSearchInput={onChangeSearchInput}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              onAddToFavorite={onAddToFavorite}
+              onAddToCart={onAddToCart}
+              onRemoveFavorite={onRemoveFavorite}
+              searchCardItem={searchCardItem}
+              onRemoveCardItem={onRemoveCardItem}
+            />
+          }
+        />
+        <Route path="/favorites" element={<Favorites items={favorites} />} />
+      </Routes>
     </div>
   );
 }

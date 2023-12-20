@@ -1,4 +1,4 @@
-function Drawer({ onClose, onDelete, onRemove, totalPrice, items = [] }) {
+function Drawer({ onClose, onRemove, totalPrice, items = [] }) {
   return (
     <div className="overlay">
       <div className="drawer">
@@ -27,12 +27,7 @@ function Drawer({ onClose, onDelete, onRemove, totalPrice, items = [] }) {
                   </div>
                   <img
                     onClick={() => {
-                      onRemove(obj.id);
-                      onDelete({
-                        title: obj.title,
-                        imageUrl: obj.imageUrl,
-                        price: obj.price,
-                      });
+                      onRemove(obj.cartId);
                     }}
                     className="removeBtn"
                     src="/img/btn-remove.svg"

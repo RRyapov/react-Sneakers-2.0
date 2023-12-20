@@ -7,6 +7,7 @@ function Card({
   onFavorite,
   removeFavorite,
   onDelete,
+  id,
   title,
   imageUrl,
   price,
@@ -19,41 +20,49 @@ function Card({
   }, [isSelected]);
 
   const onClickPlus = () => {
-    onPlus({ title, imageUrl, price });
-    setIsAdded(!isAdded);
-  };
-
-  const onClickDelete = () => {
-    onDelete({ title, imageUrl, price });
-    setIsAdded(!isAdded);
+    onPlus({ title, imageUrl, price, id });
   };
 
   const onClickFavorite = () => {
-    onFavorite({ title, imageUrl, price });
     setIsFavorite(!isFavorite);
+  };
+
+  const onAddFavorite = () => {
+    onFavorite({ title, imageUrl, price, id });
   };
 
   // useEffect(() => {
   //   removeFavorite();
   // }, [isFavorite]);
 
-  useEffect(() => {
-    console.log("Переменная изменилась");
-  }, [isAdded]);
-
   return (
     <div className={styles.card}>
       <div className="favorite d-flex flex-column">
-        <img
-          className="button"
-          width={32}
-          height={32}
-          src={isFavorite ? "/img/heart-liked.svg" : "/img/heart-unliked.svg"}
-          alt="Unliked state"
-          onClick={() => {
-            onClickFavorite();
-          }}
-        />
+        {isFavorite ? (
+          <img
+            className="button"
+            width={32}
+            height={32}
+            src="/img/heart-liked.svg"
+            alt="Liked state"
+            onClick={() => {
+              removeFavorite();
+              onClickFavorite();
+            }}
+          />
+        ) : (
+          <img
+            className="button"
+            width={32}
+            height={32}
+            src="/img/heart-unliked.svg"
+            alt="Unliked state"
+            onClick={() => {
+              onClickFavorite();
+              onAddFavorite();
+            }}
+          />
+        )}
       </div>
       <img width={133} height={112} src={imageUrl} alt="Sneakers" />
       <h5>{title}</h5>
@@ -65,7 +74,7 @@ function Card({
         {isAdded ? (
           <img
             className={styles.plus}
-            onClick={onClickDelete}
+            onClick={onDelete}
             src="/img/btn-checked.svg"
             alt="Plus"
           />
