@@ -41,12 +41,12 @@ function Drawer({ onClose, onRemove, totalPrice, items = [] }) {
                 <li className="d-flex">
                   <span>Итого:</span>
                   <div></div>
-                  <b>{totalPrice()} руб.</b>
+                  <b>{totalPrice} руб.</b>
                 </li>
                 <li className="d-flex">
                   <span>Налог 5%:</span>
                   <div></div>
-                  <b>{(totalPrice() * 0.05).toFixed(2)} руб.</b>
+                  <b>{(totalPrice * 0.05).toFixed(2)} руб.</b>
                 </li>
               </ul>
               <button className="greenButton">

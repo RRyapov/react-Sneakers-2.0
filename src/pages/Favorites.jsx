@@ -1,6 +1,13 @@
 import Card from "../components/Card/Card";
 
-function Favorites({ items, onRemoveFavorite, onAddToFavorite }) {
+function Favorites({
+  items,
+  onRemoveFavorite,
+  onAddToFavorite,
+  searchCardItem,
+  onAddToCart,
+  onRemoveCardItem,
+}) {
   return (
     <div className="content p-40">
       <div className="d-flex align-center mb-40 justify-between">
@@ -11,13 +18,12 @@ function Favorites({ items, onRemoveFavorite, onAddToFavorite }) {
         {items.map((item, index) => (
           <Card
             key={`${index} ${item}`}
-            id={item.id}
-            title={item.title}
-            price={item.price}
-            imageUrl={item.imageUrl}
-            removeFavorite={() => onRemoveFavorite(item.favId)}
+            data={item}
             onFavorite={onAddToFavorite}
-            favorited={true}
+            removeFavorite={onRemoveFavorite}
+            onCartPlus={onAddToCart}
+            onCartDelete={onRemoveCardItem}
+            searchCardItem={searchCardItem}
           />
         ))}
       </div>

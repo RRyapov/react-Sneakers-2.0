@@ -1,122 +1,120 @@
 import Header from "./components/Header";
 import Drawer from "./components/Drawer";
 import Home from "./pages/Home";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Favorites from "./pages/Favorites";
 
 function App() {
   const [items, setItems] = useState([]);
   const [cartItems, setCartItems] = useState([]);
-  const [favorites, setFavorites] = useState([]);
   const [cartOpened, setCartOpened] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [isLoading, setIsLoading] = useState("true");
+
+  // ===================================================Запросы===================================================
+  const getReqFavourite = () => {
+    axios
+      .get("https://657da8b73e3f5b189462e862.mockapi.io/favourite")
+      .then((res) => {
+        setItems((items) =>
+          items.map((item) => {
+            const favItem = res.data.find((itemFav) => itemFav.id === item.id);
+            if (favItem?.id) {
+              return {
+                ...item,
+                favId: favItem.favId,
+                isFavorite: true,
+              };
+            }
+            return { ...item, isFavorite: false };
+          })
+        );
+      });
+  };
+
+  const getReqCart = () => {
+    axios
+      .get("https://656da16ebcc5618d3c23978f.mockapi.io/cart")
+      .then((resCart) => {
+        setCartItems(resCart.data);
+      });
+  };
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get("https://656da16ebcc5618d3c23978f.mockapi.io/items")
       .then((res) => {
         setItems(res.data);
 
-        axios
-          .get("https://656da16ebcc5618d3c23978f.mockapi.io/cart")
-          .then((resCart) => {
-            setItems(
-              res.data.map((i) =>
-                resCart.data.some((c) => c.id === i.id)
-                  ? {
-                      ...i,
-                      cartId: resCart.data.find((c) => c.id === i.id).cartId,
-                    }
-                  : i
-              )
-            );
-
-            setCartItems(resCart.data);
-          });
+        getReqFavourite();
+        getReqCart();
       });
-
-    axios
-      .get("https://656da16ebcc5618d3c23978f.mockapi.io/cart")
-      .then((res) => setCartItems(res.data));
-
-    axios.get("https://657da8b73e3f5b189462e862.mockapi.io/favourite");
+    setIsLoading(false);
   }, []);
 
-  // ===================================================Методы компонентов===================================================
+  // ===================================================Работа с корзиной===================================================
 
   const onAddToCart = (obj) => {
     axios
       .post("https://656da16ebcc5618d3c23978f.mockapi.io/cart", obj)
-      .then((res) => {
-        setCartItems((prev) => [...prev, res.data]);
-
-        setItems((prev) =>
-          prev.map((i) =>
-            i.id === res.data.id
-              ? {
-                  ...i,
-                  cartId: res.data.cartId,
-                }
-              : i
-          )
-        );
-      });
-  };
-
-  const onAddToFavorite = (obj) => {
-    axios
-      .post("https://657da8b73e3f5b189462e862.mockapi.io/favourite", obj)
-      .then((res) => {
-        setFavorites((prev) => [...prev, res.data]);
-
-        setItems((prev) =>
-          prev.map((i) =>
-            i.id === res.data.id
-              ? {
-                  ...i,
-                  favId: res.data.favId,
-                }
-              : i
-          )
-        );
-      });
+      .then(() => getReqCart());
   };
 
   const onRemoveCardItem = (id) => {
     axios
       .delete(`https://656da16ebcc5618d3c23978f.mockapi.io/cart/${id}`)
-      .then(() => {
-        axios
-          .get("https://656da16ebcc5618d3c23978f.mockapi.io/cart")
-          .then((res) => setCartItems(res.data));
-      });
-  };
-
-  const onRemoveFavorite = (id) => {
-    axios
-      .delete(`https://657da8b73e3f5b189462e862.mockapi.io/favourite/${id}`)
-      .then(() => {
-        axios
-          .get("https://657da8b73e3f5b189462e862.mockapi.io/favourite")
-          .then((res) => setFavorites(res.data));
-      });
+      .then(() => getReqCart());
   };
 
   const searchCardItem = (imageUrl) => {
-    return cartItems.some((o) => o.imageUrl === imageUrl);
+    return cartItems.find((o) => o.imageUrl === imageUrl);
   };
 
   const totalPrice = () => {
     return cartItems.reduce((a, { price }) => (a = a + price), 0);
   };
 
+  // ===================================================Работа с избранным===================================================
+
+  const onAddToFavorite = (obj) => {
+    if (items.find((item) => item.id === obj.id).isFavorite) {
+      alert("Вы уже добавили этот товар в избранное");
+    } else {
+      axios
+        .post("https://657da8b73e3f5b189462e862.mockapi.io/favourite", obj)
+        .then((res) => {
+          setItems((prev) =>
+            prev.map((i) =>
+              i.id === res.data.id
+                ? {
+                    ...i,
+                    favId: res.data.favId,
+                    isFavorite: true,
+                  }
+                : i
+            )
+          );
+        });
+    }
+  };
+
+  const onRemoveFavorite = (id) => {
+    axios
+      .delete(`https://657da8b73e3f5b189462e862.mockapi.io/favourite/${id}`)
+      .then(() => getReqFavourite());
+  };
+
+  const getFavorites = useCallback(() => {
+    return items.filter(({ isFavorite }) => isFavorite);
+  }, [items]);
+
+  //===================================================Остальные методы===================================================
   const onChangeSearchInput = (event) => {
     setSearchValue(event.target.value);
   };
-
-  //===================================================завершение блока методов===================================================
 
   return (
     <div className="wrapper clear">
@@ -124,7 +122,7 @@ function App() {
       {cartOpened && (
         <Drawer
           items={cartItems}
-          totalPrice={totalPrice}
+          totalPrice={totalPrice()}
           onClose={() => setCartOpened(false)}
           onRemove={onRemoveCardItem}
         />
@@ -144,6 +142,7 @@ function App() {
               onRemoveFavorite={onRemoveFavorite}
               searchCardItem={searchCardItem}
               onRemoveCardItem={onRemoveCardItem}
+              isLoading={isLoading}
             />
           }
         />
@@ -151,7 +150,10 @@ function App() {
           path="/favorites"
           element={
             <Favorites
-              items={favorites}
+              items={getFavorites()}
+              onAddToCart={onAddToCart}
+              onRemoveCardItem={onRemoveCardItem}
+              searchCardItem={searchCardItem}
               onRemoveFavorite={onRemoveFavorite}
               onAddToFavorite={onAddToFavorite}
             />
@@ -163,23 +165,3 @@ function App() {
 }
 
 export default App;
-
-// =============== пример использования UseEffect ===========================
-
-// import React, { useState } from "react";
-// import List from "./components/List";
-
-// function App() {
-//   const [visibleList, setVisibleList] = useState(true);
-
-//   const toggleVisibleList = () => {
-//     setVisibleList((visible) => !visible);
-//   };
-
-//   return (
-//     <div className="App">
-//       {visibleList && <List />}
-//       <button onClick={toggleVisibleList}>Показать / Скрыть список</button>
-//     </div>
-//   );
-// }

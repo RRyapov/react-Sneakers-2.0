@@ -38,14 +38,12 @@ function Header({ totalPrice, onClickCart }) {
           </Link>
         </li>
         <li>
-          {/* <Link to="/mainPage"> */}
           <img
             width={18}
             height={18}
             src="/img/profile.svg"
             alt="profile_logo"
           />
-          {/* </Link> */}
         </li>
       </ul>
     </header>

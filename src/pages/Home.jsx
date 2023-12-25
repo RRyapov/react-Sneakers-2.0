@@ -11,6 +11,26 @@ function Home({
   searchCardItem,
   onRemoveCardItem,
 }) {
+  const renderItems = () => {
+    return items
+      .filter((item) =>
+        item.title.toLowerCase().includes(searchValue.toLowerCase())
+      )
+      .map((item, index) => {
+        return (
+          <Card
+            key={`${index} ${item}`}
+            data={item}
+            onCartPlus={onAddToCart}
+            onCartDelete={onRemoveCardItem}
+            onFavorite={onAddToFavorite}
+            removeFavorite={onRemoveFavorite}
+            searchCardItem={searchCardItem}
+          />
+        );
+      });
+  };
+
   return (
     <div className="content p-40">
       <div className="d-flex align-center mb-40 justify-between">
@@ -35,26 +55,7 @@ function Home({
         </div>
       </div>
 
-      <div className="d-flex flex-wrap justify-between">
-        {items
-          .filter((item) =>
-            item.title.toLowerCase().includes(searchValue.toLowerCase())
-          )
-          .map((item, index) => (
-            <Card
-              key={`${index} ${item}`}
-              id={item.id}
-              title={item.title}
-              price={item.price}
-              imageUrl={item.imageUrl}
-              onPlus={(obj) => onAddToCart(obj)}
-              onDelete={() => onRemoveCardItem(item.cartId)}
-              isSelected={searchCardItem(item.imageUrl)}
-              onFavorite={(obj) => onAddToFavorite(obj)}
-              removeFavorite={() => onRemoveFavorite(item.favId)}
-            />
-          ))}
-      </div>
+      <div className="d-flex flex-wrap justify-between">{renderItems()}</div>
     </div>
   );
 }
