@@ -11,10 +11,14 @@ function App() {
   const [cartItems, setCartItems] = useState([]);
   const [cartOpened, setCartOpened] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [isLoading, setIsLoading] = useState("true");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCart, setIsLoadingCart] = useState(true);
+  const [isLoadingFavorite, setIsLoadingFavorite] = useState(true);
+  const isAllReqLoading = isLoading || isLoadingCart || isLoadingFavorite;
 
   // ===================================================Запросы===================================================
   const getReqFavourite = () => {
+    setIsLoadingFavorite(true);
     axios
       .get("https://657da8b73e3f5b189462e862.mockapi.io/favourite")
       .then((res) => {
@@ -28,6 +32,7 @@ function App() {
                 isFavorite: true,
               };
             }
+            setIsLoadingFavorite(false);
             return { ...item, isFavorite: false };
           })
         );
@@ -35,10 +40,12 @@ function App() {
   };
 
   const getReqCart = () => {
+    setIsLoadingCart(true);
     axios
       .get("https://656da16ebcc5618d3c23978f.mockapi.io/cart")
       .then((resCart) => {
         setCartItems(resCart.data);
+        setIsLoadingCart(false);
       });
   };
 
@@ -48,11 +55,11 @@ function App() {
       .get("https://656da16ebcc5618d3c23978f.mockapi.io/items")
       .then((res) => {
         setItems(res.data);
+        setIsLoading(false);
 
         getReqFavourite();
         getReqCart();
       });
-    setIsLoading(false);
   }, []);
 
   // ===================================================Работа с корзиной===================================================
@@ -119,47 +126,53 @@ function App() {
   return (
     <div className="wrapper clear">
       <Header onClickCart={() => setCartOpened(true)} totalPrice={totalPrice} />
-      {cartOpened && (
-        <Drawer
-          items={cartItems}
-          totalPrice={totalPrice()}
-          onClose={() => setCartOpened(false)}
-          onRemove={onRemoveCardItem}
-        />
-      )}
+      {isAllReqLoading ? (
+        <div className="loading">Подождите...</div>
+      ) : (
+        <>
+          {cartOpened && (
+            <Drawer
+              items={cartItems}
+              totalPrice={totalPrice()}
+              onClose={() => setCartOpened(false)}
+              onRemove={onRemoveCardItem}
+            />
+          )}
 
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              items={items}
-              onChangeSearchInput={onChangeSearchInput}
-              searchValue={searchValue}
-              setSearchValue={setSearchValue}
-              onAddToFavorite={onAddToFavorite}
-              onAddToCart={onAddToCart}
-              onRemoveFavorite={onRemoveFavorite}
-              searchCardItem={searchCardItem}
-              onRemoveCardItem={onRemoveCardItem}
-              isLoading={isLoading}
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Home
+                  items={items}
+                  onChangeSearchInput={onChangeSearchInput}
+                  searchValue={searchValue}
+                  setSearchValue={setSearchValue}
+                  onAddToFavorite={onAddToFavorite}
+                  onAddToCart={onAddToCart}
+                  onRemoveFavorite={onRemoveFavorite}
+                  searchCardItem={searchCardItem}
+                  onRemoveCardItem={onRemoveCardItem}
+                  isLoading={isLoading}
+                />
+              }
             />
-          }
-        />
-        <Route
-          path="/favorites"
-          element={
-            <Favorites
-              items={getFavorites()}
-              onAddToCart={onAddToCart}
-              onRemoveCardItem={onRemoveCardItem}
-              searchCardItem={searchCardItem}
-              onRemoveFavorite={onRemoveFavorite}
-              onAddToFavorite={onAddToFavorite}
+            <Route
+              path="/favorites"
+              element={
+                <Favorites
+                  items={getFavorites()}
+                  onAddToCart={onAddToCart}
+                  onRemoveCardItem={onRemoveCardItem}
+                  searchCardItem={searchCardItem}
+                  onRemoveFavorite={onRemoveFavorite}
+                  onAddToFavorite={onAddToFavorite}
+                />
+              }
             />
-          }
-        />
-      </Routes>
+          </Routes>
+        </>
+      )}
     </div>
   );
 }
